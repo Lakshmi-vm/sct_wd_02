@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .calculator {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .display {
+      width: 240px;
+      height: 50px;
+      font-size: 24px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      text-align: right;
+      overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #e0e0e0;
+    }
+
+    button.operator {
+      background-color: #f9a825;
+      color: white;
+    }
+
+    button.equal {
+      background-color: #43a047;
+      color: white;
+      grid-column: span 2;
+    }
+
+    button.clear {
+      background-color: #e53935;
+      color: white;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <input type="text" class="display" id="display" disabled>
+  <div class="buttons">
+    <button class="clear">C</button>
+    <button class="operator">/</button>
+    <button class="operator">*</button>
+    <button class="operator">-</button>
+
+    <button>7</button>
+    <button>8</button>
+    <button>9</button>
+    <button class="operator">+</button>
+
+    <button>4</button>
+    <button>5</button>
+    <button>6</button>
+    <button>.</button>
+
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button class="equal">=</button>
+
+    <button style="grid-column: span 4">0</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const buttons = document.querySelectorAll('button');
+
+  let expression = '';
+
+  function updateDisplay() {
+    display.value = expression;
+  }
+
+  function calculateResult() {
+    try {
+      // Prevent invalid expression evaluation
+      if (/[^0-9+\-*/.]/.test(expression)) {
+        display.value = 'Invalid input';
+        return;
+      }
+
+      const result = Function('"use strict";return (' + expression + ')')();
+
+      if (result === Infinity || isNaN(result)) {
+        display.value = 'Error';
+      } else {
+        expression = result.toString();
+        updateDisplay();
+      }
+    } catch (err) {
+      display.value = 'Error';
+    }
+  }
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const value = button.textContent;
+
+      if (value === 'C') {
+        expression = '';
+      } else if (value === '=') {
+        calculateResult();
+        return;
+      } else {
+        expression += value;
+      }
+
+      updateDisplay();
+    });
+  });
+
+  // Keyboard support
+  document.addEventListener('keydown', (e) => {
+    const key = e.key;
+
+    if (/\d/.test(key) || ['+', '-', '*', '/', '.'].includes(key)) {
+      expression += key;
+    } else if (key === 'Enter') {
+      calculateResult();
+      return;
+    } else if (key === 'Backspace') {
+      expression = expression.slice(0, -1);
+    } else if (key === 'Escape') {
+      expression = '';
+    } else {
+      return; // ignore unsupported keys
+    }
+
+    updateDisplay();
+  });
+</script>
+
+</body>
+</html>
